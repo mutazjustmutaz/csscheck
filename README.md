@@ -6,7 +6,7 @@ The application begins by searching for files of the appropriate file type in th
 
 ### Implemented:
 
-- **Show "style" attributes `--style_atts` :** It's bad practice to mix CSS code with HTML code. This option shows you all HTML and PHP files where the "style" attribute is used, along with a list of the elements in which it's used.
+- **Show "style" attributes `--style_atts` :** It's bad practice to mix CSS code with HTML code. This option shows you all HTML and PHP files where the "style" attribute is used, along with a count of the elements in which it's used.
 ```
 ./csscheck --style_atts [-r] /PATH/TO/HTML/OR/PHP/FILE/OR/FOLDER
 ```
@@ -14,7 +14,7 @@ The application begins by searching for files of the appropriate file type in th
 ![styleatts](https://user-images.githubusercontent.com/74553745/184639945-54fa3bab-17d7-44d0-9aa5-f3fb4bb64c9f.png)
 
 
-- **Show <style> tags `--style_tags` :** Using style tags isn't as problematic as using style attributes, but you still need at least to keep track of CSS code defined that way. This option shows you all HTML and PHP files in which the style tag is used.
+- **Show <style> tags `--style_tags` :** Using style tags isn't as problematic as using style attributes, but you still need at least to keep track of CSS code defined that way. This option shows you all HTML and PHP files in which the "style" tag is used.
 ```
 ./csscheck --style_tags [-r] /PATH/TO/HTML/OR/PHP/FILE/OR/FOLDER
 ```
@@ -23,13 +23,13 @@ The application begins by searching for files of the appropriate file type in th
 
 ### Work in Progress:
 
-- **Show repeated colors `--colors` :** CSS colors which are repeatedly used should be placed inside variables. This feature shows you repeated colors and their occurence frequency. There's support for the keywords, hexadecimal, and RGBA color models.
+- **Show repeated colors `--colors` :** CSS colors which are repeatedly used should be placed inside variables. This feature shows you CSS files with repeated colors and each color's occurence frequency. There's support for the keywords, hexadecimal, and RGBA color models.
 
 - **Show unused classes `--unused` :** A common problem is that classes defined in CSS files sometimes end up being unused in HTML/PHP files. This feature shows you the paths of CSS files that contain unused classes, along with the names of those classes.
 
 ## Build
 
-Currently, you can `clone` the repository and then use `make`.
+To build the application, you can use the usual `clone` -> `cd` -> `make` sequence.
 
 As time goes on I'll be adding more advanced testing, build, and installation capabilities.
 
