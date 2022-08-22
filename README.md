@@ -1,12 +1,12 @@
 As your web application grows bigger it's easy to lose control of its CSS code. This application helps you regain control by going through your code files and showing you the location of style attributes and style tags in HTML code, repeated colors in CSS files, and unused CSS classes.
 
-The application begins by searching for files of the appropriate file type in the directory path[s] you provide. Depending on the feature, it either searches for CSS files or for HTML and PHP files. You can make this search recursive by adding the `-r` option before the directory's path.
+The application begins by searching for files of the appropriate file type (either CSS or HTML and PHP) in the directory path[s] you provide. You can make the search recursive by adding the `-r` option before the directory's path.
 
 ## Features & Usage
 
 ### Implemented:
 
-- **Show "style" attributes `--style_atts` :** It's bad practice to mix CSS code with HTML code. This option shows you all HTML and PHP files where the "style" attribute is used, along with a count of the elements in which it's used.
+- **Show "style" attributes `--style_atts` :** It's considered bad practice to mix CSS code with HTML code. This option shows you all HTML and PHP files where the "style" attribute is used, along with a count of the elements in which it's used.
 ```
 ./csscheck --style_atts [-r] /PATH/TO/HTML/OR/PHP/FILE/OR/FOLDER
 ```
@@ -23,7 +23,7 @@ The application begins by searching for files of the appropriate file type in th
 
 ### Work in Progress:
 
-- **Show repeated colors `--colors` :** CSS colors which are repeatedly used should be placed inside variables. This feature shows you CSS files with repeated colors and each color's occurence frequency. There's support for the keywords, hexadecimal, and RGBA color models.
+- **Show repeated colors `--colors` :** CSS colors which are repeatedly used should be placed inside variables. This feature shows you CSS files with repeated colors and each color's occurence frequency. There's support for all major color models.
 
 - **Show unused classes `--unused` :** A common problem is that classes defined in CSS files sometimes end up being unused in HTML/PHP files. This feature shows you the paths of CSS files that contain unused classes, along with the names of those classes.
 
@@ -35,7 +35,7 @@ As time goes on I'll be adding more advanced testing, build, and installation ca
 
 ## Compatibility
 
-This application is being developed and tested on Linux, but every effort is being made to make it work on all major UNIX-like systems (i.e. Linux, *BSD, and macOS). Feedback on compatibity is appreciated.
+This application is being developed and tested on Linux, but every effort is being made to ensure it works on all major UNIX-like systems (i.e. Linux, *BSD, and macOS). Feedback on compatibity is appreciated.
 
 A Windows port is in my long-term plans.
 
