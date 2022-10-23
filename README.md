@@ -4,8 +4,6 @@ The application begins by searching for files of the appropriate file type (eith
 
 ## Features & Usage
 
-### Implemented:
-
 - **Show "style" attributes `--style_atts` :** It's considered bad practice to mix CSS code with HTML code. This option shows you all HTML and PHP files where the "style" attribute is used, along with a count of the elements in which it's used.
 ```
 ./csscheck --style_atts [-r] /PATH/TO/HTML/OR/PHP/FILE/OR/FOLDER
@@ -21,9 +19,13 @@ The application begins by searching for files of the appropriate file type (eith
 
 ![styletags](https://user-images.githubusercontent.com/74553745/184640000-faf8249f-be3a-4ad2-8ed7-6227ca12c039.png)
 
-### Work in Progress:
 
-- **Show repeated colors `--colors` :** CSS colors which are repeatedly used should be placed inside variables. This feature shows you CSS files with repeated colors and each color's occurence frequency. There's support for all major color models.
+- **Show repeated colors `--colors` :** CSS colors which are repeatedly used should be placed inside variables. This feature shows you repeated colors in each CSS file, along with each color's occurence frequency. There's support for all major color representations, including keywords, hexadecimal, rgb[a], hsl[a], and hwb.
+```
+./csscheck --colors [-r] /PATH/TO/HTML/OR/PHP/FILE/OR/FOLDER
+```
+
+### Work in Progress:
 
 - **Show unused classes `--unused` :** A common problem is that classes defined in CSS files sometimes end up being unused in HTML/PHP files. This feature shows you the paths of CSS files that contain unused classes, along with the names of those classes.
 
@@ -35,7 +37,7 @@ As time goes on I'll be adding more advanced testing, build, and installation ca
 
 ## Compatibility
 
-This application is being developed and tested on Linux, but every effort is being made to ensure it works on all major UNIX-like systems (i.e. Linux, *BSD, and macOS). Feedback on compatibity is appreciated.
+This application is being developed and tested on Linux, but every effort is being made to ensure it works on all major UNIX-like systems (i.e. Linux, *BSD, and macOS).
 
 A Windows port is in my long-term plans.
 
