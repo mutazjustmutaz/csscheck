@@ -25,6 +25,9 @@ The application begins by searching for files of the appropriate file type (eith
 ./csscheck --colors [-r] /PATH/TO/HTML/OR/PHP/FILE/OR/FOLDER
 ```
 
+![colors](https://user-images.githubusercontent.com/74553745/197388427-4b9267bc-de5b-4165-9f00-865de97c293c.png)
+
+
 ### Work in Progress:
 
 - **Show unused classes `--unused` :** A common problem is that classes defined in CSS files sometimes end up being unused in HTML/PHP files. This feature shows you the paths of CSS files that contain unused classes, along with the names of those classes.
