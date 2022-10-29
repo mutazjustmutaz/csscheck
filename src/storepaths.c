@@ -12,19 +12,14 @@
 
 #define FILETYPE_SWITCH			\
   char *filetype1, *filetype2;			\
-  int ftlength1, ftlength2;			\
 switch(filetype){				\
   case 0: \
    filetype1 = ".html"; \
-   ftlength1 = strlen(filetype1); \
    filetype2 = ".php"; \
-   ftlength2 = strlen(filetype2); \
    break; \
   case 1: \
     filetype1 = ".css"; \
-    ftlength1 = strlen(filetype1); \
-    filetype2 = 0; \
-    ftlength2 = 0; \
+    filetype2 = "\0"; \
     break; \
   default: \
     fprintf(stderr, "Wrong file type.\n"); \
@@ -40,11 +35,11 @@ char ** store_dir(const char *path, const int filetype, int *arrlen){
   int length = 0;
   int i = 0;
   int pathlength = strlen(path);
-  char *suffix;
+  char *lastdot;
   char **filesarr;
   char *start;
 
-  //a switch statement that expresses file types as strings, instead of numbers, and stores them and their lengths in variables. 
+  //a switch statement that expresses file types as strings, instead of numbers, and stores them in variables. 
   FILETYPE_SWITCH;
   
   dp = opendir(path);
@@ -58,8 +53,11 @@ char ** store_dir(const char *path, const int filetype, int *arrlen){
   
    //note: realloc() isn't realistic here because you're dealing with variable-length strings, not integers or characters.
    while((entry = readdir(dp))){
+
+     lastdot = strrchr(entry->d_name, '.');
+     
      #ifdef _DIRENT_HAVE_D_TYPE
-     if(entry->d_type == DT_REG && (((suffix = strstr(entry->d_name, filetype1)) && strlen(suffix) == ftlength1) || (filetype2 && (suffix = strstr(entry->d_name, filetype2)) && strlen(suffix) == ftlength2))){
+    if(entry->d_type == DT_REG && lastdot && (strcmp(lastdot, filetype1) == 0 || strcmp(lastdot, filetype2) == 0)){
       length += pathlength + strlen(entry->d_name) + 1;
       *arrlen += 1;
     } else if(entry->d_type == DT_UNKNOWN)
@@ -70,7 +68,7 @@ char ** store_dir(const char *path, const int filetype, int *arrlen){
 	if(fstatat(dfd, entry->d_name, &sb, AT_SYMLINK_NOFOLLOW) == -1) {
             perror("fstatat");
            }
-        if((sb.st_mode & S_IFMT) == S_IFREG && (((suffix = strstr(entry->d_name, filetype1)) && strlen(suffix) == ftlength1) || (filetype2 && (suffix = strstr(entry->d_name, filetype2)) && strlen(suffix) == ftlength2))) {
+        if((sb.st_mode & S_IFMT) == S_IFREG && lastdot && (strcmp(lastdot, filetype1) == 0 || strcmp(lastdot, filetype2) == 0)){
                 length += pathlength + strlen(entry->d_name) + 1;
 		*arrlen += 1;
         }
@@ -92,8 +90,11 @@ char ** store_dir(const char *path, const int filetype, int *arrlen){
   
   rewinddir(dp);  
   while((entry = readdir(dp))){
+
+    lastdot = strrchr(entry->d_name, '.');
+    
     #ifdef _DIRENT_HAVE_D_TYPE
-    if(entry->d_type == DT_REG && (((suffix = strstr(entry->d_name, filetype1)) && strlen(suffix) == ftlength1) || (filetype2 && (suffix = strstr(entry->d_name, filetype2)) && strlen(suffix) == ftlength2))){
+    if(entry->d_type == DT_REG && lastdot && (strcmp(lastdot, filetype1) == 0 || strcmp(lastdot, filetype2) == 0)){
       strcat(strcpy(start, path), entry->d_name);
       filesarr[i] = start;
       start += strlen(start) + 1;
@@ -106,7 +107,7 @@ char ** store_dir(const char *path, const int filetype, int *arrlen){
 	if(fstatat(dfd, entry->d_name, &sb, AT_SYMLINK_NOFOLLOW) == -1) {
             perror("fstatat");
            }
-        if((sb.st_mode & S_IFMT) == S_IFREG && (((suffix = strstr(entry->d_name, filetype1)) && strlen(suffix) == ftlength1) || (filetype2 && (suffix = strstr(entry->d_name, filetype2)) && strlen(suffix) == ftlength2))) {
+        if((sb.st_mode & S_IFMT) == S_IFREG && lastdot && (strcmp(lastdot, filetype1) == 0 || strcmp(lastdot, filetype2) == 0)){
                 strcat(strcpy(start, path), entry->d_name);
 		filesarr[i] = start;
 		start += strlen(start) + 1;
@@ -123,11 +124,11 @@ char ** store_dir(const char *path, const int filetype, int *arrlen){
 
 //return filtered contents of directory recursively
 char **store_dir_r(char *path, const int filetype, int *arrlen){
-  char *suffix;
+  char *lastdot;
   int pathslen = 0;
   int i = 0;
 
-  //a switch statement that expresses file types as strings, instead of numbers, and stores them and their lengths in variables. 
+  //a switch statement that expresses file types as strings, instead of numbers, and stores them in variables. 
   FILETYPE_SWITCH;
   
    char **patharr = malloc(sizeof(char *) * 2);
@@ -139,8 +140,12 @@ char **store_dir_r(char *path, const int filetype, int *arrlen){
    patharr[1] = 0;
    FTS *hndl1 = fts_open(patharr, FTS_PHYSICAL, NULL);
    FTSENT *finfo1;
+   
    while((finfo1 = fts_read(hndl1))){
-     if(finfo1->fts_info == FTS_F && (((suffix = strstr(finfo1->fts_name, filetype1)) && strlen(suffix) == ftlength1) || (filetype2 && (suffix = strstr(finfo1->fts_name, filetype2)) && strlen(suffix) == ftlength2))){
+
+     lastdot = strrchr(finfo1->fts_name, '.');
+     
+     if(finfo1->fts_info == FTS_F && lastdot && (strcmp(lastdot, filetype1) == 0 || strcmp(lastdot, filetype2) == 0)){
        *arrlen += 1;
        pathslen += strlen(finfo1->fts_path)+1;
      }
@@ -158,7 +163,10 @@ char **store_dir_r(char *path, const int filetype, int *arrlen){
    FTS *hndl2 = fts_open(patharr, FTS_PHYSICAL, NULL);
    FTSENT *finfo2;
    while((finfo2 = fts_read(hndl2))){
-     if(finfo2->fts_info == FTS_F && (((suffix = strstr(finfo2->fts_name, filetype1)) && strlen(suffix) == ftlength1) || (filetype2 && (suffix = strstr(finfo2->fts_name, filetype2)) && strlen(suffix) == ftlength2))){
+
+      lastdot = strrchr(finfo2->fts_name, '.');
+      
+      if(finfo2->fts_info == FTS_F && lastdot && (strcmp(lastdot, filetype1) == 0 || strcmp(lastdot, filetype2) == 0)){
        strcpy(start, finfo2->fts_path);
        filesarr[i] = start;
        start += strlen(finfo2->fts_path) + 1;
@@ -189,12 +197,10 @@ char ** files_arr(char *path, const int filetype, int *arrlen, int recursion){
 	filesarr = store_dir_r(path, filetype, arrlen);
       }
       else if(S_ISREG(sb.st_mode)){
-	char *suffix;
-	
-	 //a switch statement that expresses file types as strings, instead of numbers, and stores them and their lengths in variables. 
+	 //a switch statement that expresses file types as strings, instead of numbers, and stores them in variables. 
 	FILETYPE_SWITCH;
-	
-	if(((suffix = strstr(path, filetype1)) && strlen(suffix) == ftlength1) || (filetype2 && (suffix = strstr(path, filetype2)) && strlen(suffix) == ftlength2)){
+	char *lastdot = strrchr(path, '.');
+	if(lastdot && (strcmp(lastdot, filetype1) == 0 || strcmp(lastdot, filetype2) == 0)){
 	  *arrlen = 1;
 	  filesarr = malloc(sizeof(char *) + strlen(path) + 1);
 	  if(filesarr == 0){
