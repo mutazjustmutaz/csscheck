@@ -122,7 +122,7 @@ char ** store_dir(const char *path, const int filetype, int *arrlen){
 
 
 //return filtered contents of directory recursively
-char **store_dir_r(const char *path, const int filetype, int *arrlen){
+char **store_dir_r(char *path, const int filetype, int *arrlen){
   char *suffix;
   int pathslen = 0;
   int i = 0;
@@ -130,14 +130,12 @@ char **store_dir_r(const char *path, const int filetype, int *arrlen){
   //a switch statement that expresses file types as strings, instead of numbers, and stores them and their lengths in variables. 
   FILETYPE_SWITCH;
   
-   char **patharr = malloc(sizeof(char *) * 2 + strlen(path) + 1);
+   char **patharr = malloc(sizeof(char *) * 2);
    if(patharr == 0){
      fprintf(stderr, "Allocation failed.\n");
      return 0;
    }
-   char *top = (char *) (patharr + 2);
-   strcpy(top, path);
-   patharr[0] = top;
+   patharr[0] = path;
    patharr[1] = 0;
    FTS *hndl1 = fts_open(patharr, FTS_PHYSICAL, NULL);
    FTSENT *finfo1;
