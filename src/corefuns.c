@@ -4,6 +4,7 @@
 #include <libxml/HTMLparser.h>
 #include <regex.h>
 #include "../include/corefuns.h"
+#include "../include/linkedlistfuns.h"
 
 #define REGEX_COUNT (153)
 #define COMMENT_REGEX_INDEX (152)
@@ -14,72 +15,6 @@ struct ParserState {
   int stylenum;
   char *style;
   };
-
-struct color {
-  char *color;
-  struct color *next;
-};
-
-
-void stack_push(stack *s, char *clr)
-{
-  struct color *e;
-  e = malloc(sizeof(struct color));
-  if(e == 0){
-    fprintf(stderr, "Error: An instance of color %s was found but storing it failed. Skipping.\n", clr);
-    return;
-  }
-  e->color = clr;
-  e->next = *s;
-  *s = e;
-}
-
-int stack_empty(const stack *s)
-{
-  return *s == 0;
-}
-
-char *stack_pop(stack *s)
-{
-  if(stack_empty(s)){
-    return 0;
-  }
-  char *clr;
-  struct color *e;
-  clr = (*s)->color;
-  e = *s;
-  *s = e->next;
-  free(e);
-  return clr;
-}
-
-void stack_process(stack *s){
-/* loop through linkedlist and count occurences of each color then nullify pointers inside structs. if > 1 print out. */
-  char *clr;
-  int clrcnt = 1;
-  struct color *elt;
-
-  while(!stack_empty(s)){
-    
-    if((clr = stack_pop(s))){
-      for(elt = *s; elt != 0; elt = elt->next){
-	if(elt->color && !strcmp(elt->color, clr)){
-	  clrcnt += 1;
-	  free(elt->color);
-	  elt->color = 0;
-	}
-      }
-      
-      if(clrcnt > 1){  
-	printf("%s : %d\n", clr, clrcnt);
-	clrcnt = 1;
-	} 
-
-      free(clr);
-    }
-    
-  }
-}
 
 
 regex_t *create_regexes(void){
