@@ -48,10 +48,6 @@ A Windows port is in my long-term plans.
 
 This code is released under the MIT license. To keep it that way, all static libraries used, or will be used, are ones with permissive licenses.
 
-## Notes
+## Note
 
 _There's a prototype for this application which I wrote in Python and published in [another repository](https://github.com/mutazjustmutaz/cssauditor).
-
-_Don't forget to put paths in double quotes if they contains spaces.
-
-_Feedback is very much appreciated.
