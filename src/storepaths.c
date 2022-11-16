@@ -11,7 +11,7 @@
 
 
 #define FILETYPE_SWITCH			\
-  char *filetype1, *filetype2;			\
+  const char *filetype1, *filetype2;			\
 switch(filetype){				\
   case 0: \
    filetype1 = ".html"; \
@@ -187,9 +187,8 @@ char ** files_arr(char *path, const int filetype, int *arrlen, int recursion){
  char **filesarr;
  if(stat(path, &sb) == 0){
       if(S_ISDIR(sb.st_mode) && recursion == 0){
-	char *slash = "/";
 	char *slashpath = malloc(strlen(path)+2);
-	strcat(strcpy(slashpath, path), slash);
+	strcat(strcpy(slashpath, path), "/");
 	filesarr = store_dir(slashpath, filetype, arrlen);
 	free(slashpath);
       }
