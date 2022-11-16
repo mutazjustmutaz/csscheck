@@ -50,4 +50,4 @@ This code is released under the MIT license. To keep it that way, all static lib
 
 ## Note
 
-_There's a prototype for this application which I wrote in Python and published in [another repository](https://github.com/mutazjustmutaz/cssauditor).
+There's a prototype for this application which I wrote in Python and published in [another repository](https://github.com/mutazjustmutaz/cssauditor).
