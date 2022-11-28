@@ -32,12 +32,11 @@ switch(filetype){				\
 char ** store_dir(const char *path, const int filetype, int *arrlen){
   struct dirent *entry;
   DIR *dp;
-  int length = 0;
-  int i = 0;
   int pathlength = strlen(path);
   char *lastdot;
   char **filesarr;
-  char *start;
+  char *mallocpath;
+  int size = 1;
 
   //a switch statement that expresses file types as strings, instead of numbers, and stores them in variables. 
   FILETYPE_SWITCH;
@@ -47,19 +46,45 @@ char ** store_dir(const char *path, const int filetype, int *arrlen){
     perror("opendir");
     return 0; 
   }
+
+  filesarr = malloc(sizeof(char *) * size);
+  if(filesarr == 0){
+    fprintf(stderr, "Path storage failed.\n");
+    closedir(dp);
+    return 0; 
+  }
   
   //obtain directory descriptor for use in stat fallback code  
   int dfd = dirfd(dp);
   
-   //note: realloc() isn't realistic here because you're dealing with variable-length strings, not integers or characters.
    while((entry = readdir(dp))){
 
      lastdot = strrchr(entry->d_name, '.');
      
      #ifdef _DIRENT_HAVE_D_TYPE
     if(entry->d_type == DT_REG && lastdot && (strcmp(lastdot, filetype1) == 0 || strcmp(lastdot, filetype2) == 0)){
-      length += pathlength + strlen(entry->d_name) + 1;
-      *arrlen += 1;
+
+      mallocpath = malloc(pathlength+strlen(entry->d_name)+1);
+      if(mallocpath == 0){
+	fprintf(stderr, "Storing path %s failed. Skipping.\n", entry->d_name);
+	 continue;
+      }	  
+      strcat(strcpy(mallocpath, path), entry->d_name);
+      //store pointer in dynamic array
+      while(*arrlen >= size){
+	 size *= 2; 
+	 filesarr = realloc(filesarr, sizeof(char *) * size);
+	 if(filesarr == 0){
+	   fprintf(stderr, "Path storage failed\n");
+	   //the other paths can't be freed because filesarr is what's used to keep track of them
+	   free(mallocpath);
+	   closedir(dp);
+	   return 0;
+	 }
+      }
+       
+      filesarr[(*arrlen)++] = mallocpath;
+      
     } else if(entry->d_type == DT_UNKNOWN)
     #endif
       {
@@ -69,54 +94,45 @@ char ** store_dir(const char *path, const int filetype, int *arrlen){
             perror("fstatat");
            }
         if((sb.st_mode & S_IFMT) == S_IFREG && lastdot && (strcmp(lastdot, filetype1) == 0 || strcmp(lastdot, filetype2) == 0)){
-                length += pathlength + strlen(entry->d_name) + 1;
-		*arrlen += 1;
+	  
+                 mallocpath = malloc(pathlength+strlen(entry->d_name)+1);
+	  if(mallocpath == 0){
+	    fprintf(stderr, "Storing path %s failed. Skipping.\n", entry->d_name);
+	    continue;
+	  }	  
+	  strcat(strcpy(mallocpath, path), entry->d_name);
+	  //store pointer in dynamic array
+	  while(*arrlen >= size){
+	    size *= 2; 
+	    filesarr = realloc(filesarr, sizeof(char *) * size);
+	    if(filesarr == 0){
+	      fprintf(stderr, "Path storage failed\n");
+	      //the other paths can't be freed because filesarr is what's used to keep track of them
+	      free(mallocpath);
+	      closedir(dp);
+	      return 0;
+	    }
+	  }
+	  
+	    filesarr[(*arrlen)++] = mallocpath;
+	    
         }
       }
   }
 
+  closedir(dp);
+   
   if(*arrlen == 0){
-    fprintf(stderr, "The directory %s doesn't contain any files of the appropriate file type.\n", path);
+    fprintf(stderr, "The directory doesn't contain any files of the appropriate file type.\n");
+    free(filesarr);
     return 0;
   }
   
-  filesarr = malloc(sizeof(char *) * *arrlen + length);
+  filesarr = realloc(filesarr, sizeof(char *) * *arrlen);
   if(filesarr == 0){
-    fprintf(stderr, "Allocation failed.\n");
-    return 0; 
+    //the paths can't be freed because filesarr is what's used to keep track of them
+    return 0;
   }
-  
-  start = (char *)(filesarr + *arrlen);
-  
-  rewinddir(dp);  
-  while((entry = readdir(dp))){
-
-    lastdot = strrchr(entry->d_name, '.');
-    
-    #ifdef _DIRENT_HAVE_D_TYPE
-    if(entry->d_type == DT_REG && lastdot && (strcmp(lastdot, filetype1) == 0 || strcmp(lastdot, filetype2) == 0)){
-      strcat(strcpy(start, path), entry->d_name);
-      filesarr[i] = start;
-      start += strlen(start) + 1;
-      i++;
-    } else if(entry->d_type == DT_UNKNOWN)
-      #endif 
-      {
-	//fallback for when there's no d_type field or d_type is DT_UNKNOWN
-	struct stat sb;
-	if(fstatat(dfd, entry->d_name, &sb, AT_SYMLINK_NOFOLLOW) == -1) {
-            perror("fstatat");
-           }
-        if((sb.st_mode & S_IFMT) == S_IFREG && lastdot && (strcmp(lastdot, filetype1) == 0 || strcmp(lastdot, filetype2) == 0)){
-                strcat(strcpy(start, path), entry->d_name);
-		filesarr[i] = start;
-		start += strlen(start) + 1;
-		i++;
-        }
-      }
-  }
-  
-  closedir(dp);
 
   return filesarr;
 }
@@ -125,12 +141,15 @@ char ** store_dir(const char *path, const int filetype, int *arrlen){
 //return filtered contents of directory recursively
 char **store_dir_r(char *path, const int filetype, int *arrlen){
   char *lastdot;
-  int pathslen = 0;
-  int i = 0;
+  char *mallocpath;
 
-  //a switch statement that expresses file types as strings, instead of numbers, and stores them in variables. 
-  FILETYPE_SWITCH;
-  
+   int size = 1;
+   char **filesarr  = malloc(sizeof(char *) * size);
+   if(filesarr == 0){
+     fprintf(stderr, "Paths storage failed.\n");
+     return 0; 
+   }
+   
    char **patharr = malloc(sizeof(char *) * 2);
    if(patharr == 0){
      fprintf(stderr, "Allocation failed.\n");
@@ -138,45 +157,64 @@ char **store_dir_r(char *path, const int filetype, int *arrlen){
    }
    patharr[0] = path;
    patharr[1] = 0;
-   FTS *hndl1 = fts_open(patharr, FTS_PHYSICAL, NULL);
-   FTSENT *finfo1;
-   
-   while((finfo1 = fts_read(hndl1))){
+   FTS *hndl = fts_open(patharr, FTS_PHYSICAL, NULL);
+   FTSENT *finfo;
 
-     lastdot = strrchr(finfo1->fts_name, '.');
+   //a switch statement that expresses file types as strings, instead of numbers, and stores them in variables. 
+  FILETYPE_SWITCH;
+   
+   while((finfo = fts_read(hndl))){
+
+     lastdot = strrchr(finfo->fts_name, '.');
      
-     if(finfo1->fts_info == FTS_F && lastdot && (strcmp(lastdot, filetype1) == 0 || strcmp(lastdot, filetype2) == 0)){
-       *arrlen += 1;
-       pathslen += strlen(finfo1->fts_path)+1;
+     if(finfo->fts_info == FTS_F && lastdot && (strcmp(lastdot, filetype1) == 0 || strcmp(lastdot, filetype2) == 0)){
+
+       mallocpath = malloc(finfo->fts_pathlen+1);
+       if(mallocpath == 0){
+	 fprintf(stderr, "Storing path %s failed. Skipping.\n", finfo->fts_path);
+	 continue;
+       }	  
+       strcpy(mallocpath, finfo->fts_path);
+       //store pointer in dynamic array
+       while(*arrlen >= size){
+	 size *= 2; 
+	 filesarr = realloc(filesarr, sizeof(char *) * size);
+	 if(filesarr == 0){
+	   fprintf(stderr, "Paths storage failed\n");
+	   //the other paths can't be freed because filesarr is what's used to keep track of them
+	   free(mallocpath);
+	   free(patharr);
+	   if(fts_close(hndl) == -1){
+	     fprintf(stderr, "Error on closing file hierarchy stream.\n");
+	   } 
+	   return 0;
+	 }
+       }
+       
+       filesarr[(*arrlen)++] = mallocpath;
+       
      }
    }
-   if(fts_close(hndl1) == -1){
+   
+   if(fts_close(hndl) == -1){
      fprintf(stderr, "Error on closing file hierarchy stream.\n");
    }
-   char **filesarr = malloc(sizeof(char *) * *arrlen + pathslen);
-   if(filesarr == 0){
-     fprintf(stderr, "Allocation failed.\n");
-     free(patharr);
+   
+   free(patharr);
+
+   if(*arrlen == 0){
+     fprintf(stderr, "The directory doesn't contain any files of the appropriate file type.\n");
+     free(filesarr);
      return 0;
    }
-   char *start = (char *)(filesarr + *arrlen);
-   FTS *hndl2 = fts_open(patharr, FTS_PHYSICAL, NULL);
-   FTSENT *finfo2;
-   while((finfo2 = fts_read(hndl2))){
 
-      lastdot = strrchr(finfo2->fts_name, '.');
-      
-      if(finfo2->fts_info == FTS_F && lastdot && (strcmp(lastdot, filetype1) == 0 || strcmp(lastdot, filetype2) == 0)){
-       strcpy(start, finfo2->fts_path);
-       filesarr[i] = start;
-       start += strlen(finfo2->fts_path) + 1;
-       i++;
-     }
+   filesarr = realloc(filesarr, sizeof(char *) * *arrlen);
+   if(filesarr == 0){
+     fprintf(stderr, "Allocation failed.\n");
+     //the paths can't be freed because filesarr is what's used to keep track of them
+     return 0;
    }
-   if(fts_close(hndl2) == -1){
-     fprintf(stderr, "Error on closing file hierarchy stream.\n");
-   }
-   free(patharr);
+   
    return filesarr;
 }
 
