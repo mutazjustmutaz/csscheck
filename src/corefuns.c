@@ -256,6 +256,7 @@ void style_tag_paths(char **filesarr, const int farrlen){
       puts(filesarr[i]);
       my_state.styleflag = 0;
     }
+    free(filesarr[i]);
   }
 }
 
@@ -288,5 +289,6 @@ void style_att_paths(char **filesarr, const int farrlen){
       printf("%s : %d element[s]\n", filesarr[i], my_state.stylenum);
       my_state.stylenum = 0;
     }
+    free(filesarr[i]);
   }
 }

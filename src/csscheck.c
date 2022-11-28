@@ -176,6 +176,7 @@ int main(int argc, char **argv){
       puts(cssarr[i]);
       process_colors(cssarr[i], regexarr);
       putchar('\n');
+      free(cssarr[i]);
     }
     destroy_regexes(regexarr);
     free(cssarr);
