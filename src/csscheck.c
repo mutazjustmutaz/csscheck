@@ -139,8 +139,15 @@ int main(int argc, char **argv){
       fprintf(stderr, "Error: Gathering file names has failed.\n");
       exit(EXIT_FAILURE);
       }
-    free(htmlarr);
+    for(int i = 0; i < cssarrlen; i++){
+      puts(cssarr[i]);
+      free(cssarr[i]);
+    }
     free(cssarr); 
+    for(int j = 0; j < htmlarrlen; j++){
+      free(htmlarr[j]);
+    }
+    free(htmlarr); 
     break;
   case 2:
     htmlarr = files_arr(path, HTMLPHP, &htmlarrlen, pathrecursion);
