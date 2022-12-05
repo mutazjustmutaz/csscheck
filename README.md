@@ -1,6 +1,6 @@
 As your web application grows bigger it's easy to lose control of its CSS code. This application helps you regain control by going through your code files and showing you the location of style attributes and style tags in HTML code, repeated colors in CSS files, and unused CSS classes.
 
-The application begins by searching for files of the appropriate file type (either CSS or HTML and PHP) in the directory path[s] you provide. You can make the search recursive by adding the `-r` option before the directory's path.
+The application begins by searching for files of the appropriate file type (either CSS or HTML and PHP) in the directory path you provide. You can make the search recursive by adding the `-r` option before the directory's path.
 
 ## Features & Usage
 
@@ -46,7 +46,7 @@ A Windows port is in my long-term plans.
 
 ## License
 
-This code is released under the MIT license. To keep it that way, all static libraries used, or will be used, are ones with permissive licenses.
+This code is released under the MIT license. The only static library used is libxml2, which is released under the same license.
 
 ## Note
 
