@@ -5,15 +5,20 @@
 #include <regex.h>
 #include "../include/corefuns.h"
 
+//For use in the --colors feature
 #define REGEX_COUNT (153)
 #define COMMENT_REGEX_INDEX (152)
 #define COLON_REGEX_INDEX (151)
 
+//For use in the --style_tags and --style_atts features
 struct ParserState {
   int styleflag;
   int stylenum;
   char *style;
   };
+
+
+//The next 2 functions are generic linked list functions
 
 struct elt {
   char *value;
@@ -51,6 +56,8 @@ char *stack_pop(stack *s)
   return str;
 }
 
+
+//The next 4 functions implement the --colors feature
 
 //loop through linkedlist and count occurences of each color then nullify pointers inside structs. if > 1 print out. 
 void stack_process(stack *s){
@@ -90,12 +97,11 @@ regex_t *create_regexes(void){
     return 0;
   }
   regex_t regex;
-  int flags = (REG_EXTENDED | REG_ICASE);
   
   for(int i = 0; i < REGEX_COUNT; i++){
     /* In case of a regcomp error, the result stored in regex is "undefined". we can either rely on regexec to fail at color or store a unique value in the regex and test for it later.
        The only field required by POSIX is "size_t re_nsub", which holds the "number of parenthesized subexpressions". i'll assign a ridiculous value to it and test for it later. */
-    if(regcomp(&regex, strarr[i], flags)){
+    if(regcomp(&regex, strarr[i], REG_EXTENDED | REG_ICASE)){
       switch(i){
       case COMMENT_REGEX_INDEX:
 	fprintf(stderr, "Error on regex for inline comments.\n");
@@ -232,6 +238,8 @@ void destroy_regexes(regex_t *regexarr){
 }
 
 
+//The next 2 functions implement the --style_tags feature
+
 //callback function for style_tag_paths
 void start_element_tags(void *user_data, const xmlChar *name, const xmlChar **attrs) {
   struct ParserState *pstate = user_data;
@@ -259,6 +267,9 @@ void style_tag_paths(char **filesarr, const int farrlen){
     free(filesarr[i]);
   }
 }
+
+
+//The next 2 functions implement the --style_atts feature
 
 //callback function for style_att_paths
 void start_element_att(void *user_data, const xmlChar *name, const xmlChar **attrs) {
