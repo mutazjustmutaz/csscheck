@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include <libxml/HTMLtree.h>
 #include <libxml/HTMLparser.h>
 #include <regex.h>
@@ -214,6 +215,9 @@ void process_colors(char *csspath, regex_t *regexarr){
 	  }
 	  strncpy(mallocolor, regstart, len);
 	  mallocolor[len] = '\0';
+	  for(int k = 0; k < len; k++){
+	    mallocolor[k] = tolower(mallocolor[k]);
+	  }
 	  stack_push(&s, mallocolor);
 	  str += pmatch[0].rm_eo;
 	}  //end of color occurrences loop
